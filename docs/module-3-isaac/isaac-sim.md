@@ -486,4 +486,4 @@ if __name__ == "__main__":
 
 ---
 
-**Next:** [Chapter 2: Isaac ROS Integration](./isaac-ros) or continue to [Module 4: VLA & Humanoids](../module-4-vla/) →
+**Next:** Continue to [Module 4: VLA & Humanoids](../module-4-vla/) →

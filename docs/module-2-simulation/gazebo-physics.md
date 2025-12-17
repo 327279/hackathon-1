@@ -477,4 +477,4 @@ Create a simulation environment for a mobile robot with:
 
 ---
 
-**Next:** [Chapter 2: Unity for Robotics](./unity-robotics) or continue to [Module 3: NVIDIA Isaac](../module-3-isaac/) →
+**Next:** Continue to [Module 3: NVIDIA Isaac](../module-3-isaac/) →
