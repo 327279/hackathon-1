@@ -68,8 +68,8 @@ export default function ChatBot(): JSX.Element {
         setIsLoading(true);
 
         try {
-            // Determine the API base URL - default to localhost:8000 for dev
-            const apiBase = 'http://localhost:8000';
+            // API base URL - production backend
+            const apiBase = 'https://hackathon-1-lake-five.vercel.app';
 
             const response = await fetch(`${apiBase}/api/chat/`, {
                 method: 'POST',

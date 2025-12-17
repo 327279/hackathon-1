@@ -22,7 +22,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 formData.append('username', email);
                 formData.append('password', password);
 
-                const response = await fetch('http://localhost:8000/api/auth/token', {
+                const response = await fetch('https://hackathon-1-lake-five.vercel.app/api/auth/token', {
                     method: 'POST',
                     body: formData,
                 });
@@ -38,7 +38,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                 onClose();
             } else {
                 // Signup Logic
-                const response = await fetch('http://localhost:8000/api/auth/signup', {
+                const response = await fetch('https://hackathon-1-lake-five.vercel.app/api/auth/signup', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

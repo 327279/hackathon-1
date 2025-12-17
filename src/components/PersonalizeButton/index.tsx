@@ -15,7 +15,7 @@ export const PersonalizeButton = ({ content, title, onPersonalized }) => {
         }
 
         try {
-            const response = await fetch('http://localhost:8000/api/personalize/', {
+            const response = await fetch('https://hackathon-1-lake-five.vercel.app/api/personalize/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

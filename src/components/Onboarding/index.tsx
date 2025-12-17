@@ -23,7 +23,7 @@ export const OnboardingModal = ({ isOpen, onClose }) => {
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch('http://localhost:8000/api/profile/', {
+            const response = await fetch('https://hackathon-1-lake-five.vercel.app/api/profile/', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

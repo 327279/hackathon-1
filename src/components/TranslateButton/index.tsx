@@ -13,7 +13,7 @@ export const TranslateButton = ({ content, onTranslated }) => {
 
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8000/api/translate/', {
+            const response = await fetch('https://hackathon-1-lake-five.vercel.app/api/translate/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content, target_language: 'Urdu' })
