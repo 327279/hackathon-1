@@ -1,5 +1,5 @@
-import {themes as prismThemes} from 'prism-react-renderer';
-import type {Config} from '@docusaurus/types';
+import { themes as prismThemes } from 'prism-react-renderer';
+import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
@@ -8,8 +8,8 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://arcomputers.github.io',
-  baseUrl: '/hackathon-1/',
+  url: 'https://hackathon-1.vercel.app',
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'ARComputers', // Usually your GitHub org/user name.
