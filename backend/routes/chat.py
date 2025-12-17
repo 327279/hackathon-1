@@ -47,7 +47,7 @@ async def chat_endpoint(request: ChatRequest):
         if gemini_key:
             import google.generativeai as genai
             genai.configure(api_key=gemini_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('gemini-2.0-flash')
             
             system_prompt = """You are a helpful AI teaching assistant for a Physical AI & Robotics textbook.
             Answer questions about ROS 2, robotics simulation, NVIDIA Isaac, and Vision-Language-Action models.
