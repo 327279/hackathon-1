@@ -7,16 +7,15 @@ python-dotenv==1.0.1
 # Database
 sqlalchemy==2.0.36
 asyncpg==0.30.0
-psycopg2-binary==2.9.10
+aiosqlite==0.20.0
 
 # OpenAI & RAG
-openai==1.58.1
-openai-agents==0.0.5
+openai>=1.66.5
 qdrant-client==1.12.1
 tiktoken==0.8.0
 
 # Authentication
-pyjwt==2.10.1
+python-jose[cryptography]==3.3.0
 bcrypt==4.2.1
 passlib[bcrypt]==1.7.4
 
