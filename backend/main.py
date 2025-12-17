@@ -25,14 +25,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration
+# CORS configuration - allow all origins for hackathon demo
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://*.github.io",
-    ],
+    allow_origins=["*"],  # Allow all origins for hackathon
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
