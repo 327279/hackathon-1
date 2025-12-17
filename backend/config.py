@@ -14,10 +14,10 @@ class Settings(BaseSettings):
     app_name: str = "Physical AI Textbook API"
     debug: bool = False
     
-    # OpenAI
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
-    openai_embedding_model: str = "text-embedding-3-small"
+    # Google Gemini
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-1.5-flash"
+    gemini_embedding_model: str = "models/text-embedding-004"
     
     # Database - Neon
     database_url: str = ""

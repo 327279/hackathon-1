@@ -42,11 +42,12 @@ async def chat_endpoint(request: ChatRequest):
                 citations=result["citations"]
             )
         
-        # Fallback: Direct OpenAI without RAG
-        openai_key = os.getenv("OPENAI_API_KEY")
-        if openai_key:
-            from openai import OpenAI
-            client = OpenAI(api_key=openai_key)
+        # Fallback: Direct Gemini without RAG
+        gemini_key = os.getenv("GEMINI_API_KEY")
+        if gemini_key:
+            import google.generativeai as genai
+            genai.configure(api_key=gemini_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             system_prompt = """You are a helpful AI teaching assistant for a Physical AI & Robotics textbook.
             Answer questions about ROS 2, robotics simulation, NVIDIA Isaac, and Vision-Language-Action models.
@@ -56,22 +57,17 @@ async def chat_endpoint(request: ChatRequest):
             if request.selected_text:
                 context = f"\n\nUser selected this text for context: {request.selected_text}"
             
-            completion = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": request.message + context}
-                ]
-            )
+            prompt = f"{system_prompt}\n\nQuestion: {request.message}{context}"
+            response = model.generate_content(prompt)
             
             return ChatResponse(
-                response=completion.choices[0].message.content,
+                response=response.text,
                 citations=["Direct AI response (RAG not configured)"]
             )
         
         # No API key available
         return ChatResponse(
-            response="I'm sorry, but the AI backend is not fully configured. Please ensure the OPENAI_API_KEY environment variable is set in your Vercel deployment.",
+            response="I'm sorry, but the AI backend is not fully configured. Please ensure the GEMINI_API_KEY environment variable is set in your Vercel deployment.",
             citations=[]
         )
         

@@ -9,11 +9,11 @@ from sqlalchemy import select
 from database import get_db, User, UserProfile
 from .auth import get_current_user
 from config import get_settings
-from openai import OpenAI
+import google.generativeai as genai
 
 router = APIRouter(prefix="/api/personalize", tags=["personalize"])
 settings = get_settings()
-client = OpenAI(api_key=settings.openai_api_key)
+genai.configure(api_key=settings.gemini_api_key)
 
 class PersonalizeRequest(BaseModel):
     content: str
@@ -51,12 +51,10 @@ async def personalize_content(
     - Maintain Markdown formatting.
     """
     
-    completion = client.chat.completions.create(
-        model=settings.openai_model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Title: {request.chapter_title}\n\nContent:\n{request.content}"}
-        ]
+    model = genai.GenerativeModel(settings.gemini_model)
+    
+    completion = model.generate_content(
+        f"{system_prompt}\n\nTitle: {request.chapter_title}\n\nContent:\n{request.content}"
     )
     
-    return PersonalizeResponse(personalized_content=completion.choices[0].message.content)
+    return PersonalizeResponse(personalized_content=completion.text)

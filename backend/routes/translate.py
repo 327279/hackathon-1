@@ -5,11 +5,11 @@ Translation Routes
 from fastapi import APIRouter
 from pydantic import BaseModel
 from config import get_settings
-from openai import OpenAI
+import google.generativeai as genai
 
 router = APIRouter(prefix="/api/translate", tags=["translate"])
 settings = get_settings()
-client = OpenAI(api_key=settings.openai_api_key)
+genai.configure(api_key=settings.gemini_api_key)
 
 class TranslateRequest(BaseModel):
     content: str
@@ -28,12 +28,8 @@ async def translate_content(request: TranslateRequest):
     - Maintain Markdown formatting exactly.
     """
     
-    completion = client.chat.completions.create(
-        model=settings.openai_model,
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": request.content}
-        ]
-    )
+    model = genai.GenerativeModel(settings.gemini_model)
+    prompt = f"{system_prompt}\n\nContent to translate:\n{request.content}"
+    response = model.generate_content(prompt)
     
-    return TranslateResponse(translated_content=completion.choices[0].message.content)
+    return TranslateResponse(translated_content=response.text)

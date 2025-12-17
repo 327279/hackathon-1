@@ -5,7 +5,7 @@ RAG Query Logic using OpenAI Agents SDK
 from typing import List, Dict, Optional
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-from openai import OpenAI
+import google.generativeai as genai
 from config import get_settings
 
 settings = get_settings()
@@ -21,7 +21,7 @@ class RAGQuery:
         else:
             self.qdrant = QdrantClient(path=settings.qdrant_path)
 
-        self.openai = OpenAI(api_key=settings.openai_api_key)
+        genai.configure(api_key=settings.gemini_api_key)
         self.collection_name = settings.qdrant_collection
         
     def query(self, question: str, context_text: Optional[str] = None) -> Dict:
@@ -31,11 +31,12 @@ class RAGQuery:
         """
         
         # 1. Generate embedding for the question
-        response = self.openai.embeddings.create(
-            input=question,
-            model=settings.openai_embedding_model
+        embedding_result = genai.embed_content(
+            model=settings.gemini_embedding_model,
+            content=question,
+            task_type="retrieval_query"
         )
-        question_vector = response.data[0].embedding
+        question_vector = embedding_result['embedding']
         
         # 2. Search Qdrant
         search_results = self.qdrant.search(
@@ -67,15 +68,11 @@ class RAGQuery:
         Keep answers concise and educational.
         """
         
-        completion = self.openai.chat.completions.create(
-            model=settings.openai_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Context:\n{retrieved_context}\n\nQuestion: {question}"}
-            ]
-        )
+        model = genai.GenerativeModel(settings.gemini_model)
+        prompt = f"{system_prompt}\n\nContext:\n{retrieved_context}\n\nQuestion: {question}"
+        completion = model.generate_content(prompt)
         
-        answer = completion.choices[0].message.content
+        answer = completion.text
         
         return {
             "answer": answer,

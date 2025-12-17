@@ -7,7 +7,7 @@ import glob
 from typing import List, Dict
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-from openai import OpenAI
+import google.generativeai as genai
 from config import get_settings
 
 settings = get_settings()
@@ -25,7 +25,7 @@ class IngestionPipeline:
             print(f"Using Local Qdrant Storage: {settings.qdrant_path}")
             self.qdrant = QdrantClient(path=settings.qdrant_path)
 
-        self.openai = OpenAI(api_key=settings.openai_api_key)
+        genai.configure(api_key=settings.gemini_api_key)
         self.collection_name = settings.qdrant_collection
         
     def init_collection(self):
@@ -37,7 +37,7 @@ class IngestionPipeline:
             self.qdrant.create_collection(
                 collection_name=self.collection_name,
                 vectors_config=models.VectorParams(
-                    size=1536,  # OpenAI text-embedding-3-small dimension
+                    size=768,  # Gemini text-embedding-004 dimension
                     distance=models.Distance.COSINE
                 )
             )
@@ -88,29 +88,46 @@ class IngestionPipeline:
             chunks = self.process_file(file_path)
             
             for i, chunk in enumerate(chunks):
-                # Generate embedding
-                response = self.openai.embeddings.create(
-                    input=chunk['content'],
-                    model=settings.openai_embedding_model
-                )
-                embedding = response.data[0].embedding
-                
-                # Upsert to Qdrant
-                self.qdrant.upsert(
-                    collection_name=self.collection_name,
-                    points=[
-                        models.PointStruct(
-                            id=str(os.urandom(16).hex()), # Use random ID to avoid collision
-                            vector=embedding,
-                            payload={
-                                "content": chunk['content'],
-                                "header": chunk['header'],
-                                "file": chunk['file'],
-                                "path": file_path
-                            }
+                try:
+                    # Generate embedding with retry logic
+                    import time
+                    from tenacity import retry, stop_after_attempt, wait_exponential
+                    
+                    @retry(stop=stop_after_attempt(5), wait=wait_exponential(multiplier=1, min=4, max=30))
+                    def generate_embedding(content):
+                        return genai.embed_content(
+                            model=settings.gemini_embedding_model,
+                            content=content,
+                            task_type="retrieval_document"
                         )
-                    ]
-                )
+                    
+                    embedding_result = generate_embedding(chunk['content'])
+                    embedding = embedding_result['embedding']
+                    
+                    # Upsert to Qdrant
+                    self.qdrant.upsert(
+                        collection_name=self.collection_name,
+                        points=[
+                            models.PointStruct(
+                                id=str(os.urandom(16).hex()), # Use random ID to avoid collision
+                                vector=embedding,
+                                payload={
+                                    "content": chunk['content'],
+                                    "header": chunk['header'],
+                                    "file": chunk['file'],
+                                    "path": file_path
+                                }
+                            )
+                        ]
+                    )
+                    
+                    # Increased delay to avoid rate limits
+                    time.sleep(1.5)
+                    
+                except Exception as e:
+                    print(f"Error ingesting chunk from {file_path}: {e}")
+                    continue
+                    
             print(f"Ingested {file_path}")
 
 if __name__ == "__main__":
